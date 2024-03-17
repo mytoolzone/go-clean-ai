@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Eun/go-hit v0.5.23
-	github.com/Masterminds/squirrel v1.5.2
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
