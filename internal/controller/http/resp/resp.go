@@ -3,8 +3,9 @@ package resp
 import (
 	"net/http"
 
-	"github.com/evrone/go-clean-template/internal/app_err"
-	"github.com/evrone/go-clean-template/internal/entity/dto"
+	"go-clean/internal/app_err"
+	"go-clean/internal/entity/dto"
+
 	"github.com/gin-gonic/gin"
 )
 

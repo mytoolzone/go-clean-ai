@@ -3,11 +3,12 @@ package v1
 import (
 	"net/http"
 
-	"github.com/evrone/go-clean-template/internal/controller/http/resp"
+	"go-clean/internal/controller/http/resp"
+
 	"github.com/gin-gonic/gin"
 
-	"github.com/evrone/go-clean-template/internal/entity"
-	"github.com/evrone/go-clean-template/internal/usecase"
+	"go-clean/internal/entity"
+	"go-clean/internal/usecase"
 )
 
 type translationRoutes struct {

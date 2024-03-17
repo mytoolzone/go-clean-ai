@@ -23,9 +23,9 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	// Swagger docs.
-	_ "github.com/evrone/go-clean-template/docs"
-	"github.com/evrone/go-clean-template/internal/usecase"
-	"github.com/evrone/go-clean-template/pkg/logger"
+	_ "go-clean/docs"
+	"go-clean/internal/usecase"
+	"go-clean/pkg/logger"
 )
 
 // NewRouter -.
@@ -56,9 +56,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/evrone/go-clean-template/internal/entity"
-	"github.com/evrone/go-clean-template/internal/usecase"
-	"github.com/evrone/go-clean-template/pkg/logger"
+	"go-clean/internal/entity"
+	"go-clean/internal/usecase"
+	"go-clean/pkg/logger"
 )
 
 type translationRoutes struct {
@@ -128,7 +128,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/evrone/go-clean-template/internal/entity"
+	"go-clean/internal/entity"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=./mocks_test.go -package=usecase_test
@@ -153,8 +153,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/evrone/go-clean-template/internal/entity"
-	"github.com/evrone/go-clean-template/pkg/postgres"
+	"go-clean/internal/entity"
+	"go-clean/pkg/postgres"
 )
 
 const _defaultEntityCap = 64
@@ -209,7 +209,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/evrone/go-clean-template/internal/entity"
+	"go-clean/internal/entity"
 )
 
 // TranslationUseCase -.

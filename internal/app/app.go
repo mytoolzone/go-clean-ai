@@ -3,19 +3,20 @@ package app
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/golang/glog"
+
 	"github.com/gin-gonic/gin"
 
-	"github.com/evrone/go-clean-template/config"
-	v1 "github.com/evrone/go-clean-template/internal/controller/http/v1"
-	"github.com/evrone/go-clean-template/internal/usecase"
-	"github.com/evrone/go-clean-template/internal/usecase/repo"
-	"github.com/evrone/go-clean-template/pkg/httpserver"
-	"github.com/evrone/go-clean-template/pkg/postgres"
+	"go-clean/config"
+	v1 "go-clean/internal/controller/http/v1"
+	"go-clean/internal/usecase"
+	"go-clean/internal/usecase/repo"
+	"go-clean/pkg/httpserver"
+	"go-clean/pkg/postgres"
 )
 
 // Run creates objects via constructors.

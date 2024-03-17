@@ -4,8 +4,8 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	// Swagger docs.
-	_ "github.com/evrone/go-clean-template/docs"
-	"github.com/evrone/go-clean-template/internal/usecase"
+	_ "go-clean/docs"
+	"go-clean/internal/usecase"
 )
 
 // NewRouter -.
