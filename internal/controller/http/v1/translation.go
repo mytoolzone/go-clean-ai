@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 
+	"github.com/evrone/go-clean-template/internal/controller/http/resp"
 	"github.com/gin-gonic/gin"
 
 	"github.com/evrone/go-clean-template/internal/entity"
@@ -43,7 +44,7 @@ func (r *translationRoutes) history(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, historyResponse{translations})
+	resp.Success(c, historyResponse{translations})
 }
 
 type doTranslateRequest struct {
