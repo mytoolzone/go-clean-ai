@@ -51,22 +51,3 @@ func (r *TranslationRepo) GetHistory(ctx context.Context) ([]entity.Translation,
 
 	return entities, nil
 }
-
-// Store -.
-func (r *TranslationRepo) Store(ctx context.Context, t entity.Translation) error {
-	sql, args, err := r.Builder.
-		Insert("history").
-		Columns("source, destination, original, translation").
-		Values(t.Source, t.Destination, t.Original, t.Translation).
-		ToSql()
-	if err != nil {
-		return fmt.Errorf("TranslationRepo - Store - r.Builder: %w", err)
-	}
-
-	_, err = r.Pool.Exec(ctx, sql, args...)
-	if err != nil {
-		return fmt.Errorf("TranslationRepo - Store - r.Pool.Exec: %w", err)
-	}
-
-	return nil
-}
