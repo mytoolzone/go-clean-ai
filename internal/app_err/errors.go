@@ -26,12 +26,12 @@ const (
 	ErrInvalidToken       = "INVALID_TOKEN"       // 无效的凭证
 	ErrExpiredToken       = "EXPIRED_TOKEN"       // 令牌已过期
 	ErrPermissionDenied   = "PERMISSION_DENIED"   // 权限被拒绝
+	ErrLoginFailed        = "LOGIN_FAILED"        // 登录失败              = "PERMISSION_DENIED"   // 权限被拒绝
 
 	// 文件操作相关错误类型
 	ErrFileNotFound    = "FILE_NOT_FOUND"    // 文件不存在
 	ErrFileReadFailed  = "FILE_READ_FAILED"  // 文件读取失败
 	ErrFileWriteFailed = "FILE_WRITE_FAILED" // 文件写入失败
-
 )
 
 const (
@@ -40,6 +40,10 @@ const (
 	MsgDbUpdateErr      = "更新数据异常"
 	MsgPermissionDenied = "非法访问"
 	MsgExpiredToken     = "访问令牌过期"
+	MsgLoginFailed      = "登陆失败"
+	MsgLoginPasswdErr   = "密码错误"
+	MsgDbInsertFailed   = "数据库插入失败"
+	MsgParamNoMobile    = "缺失手机号"
 )
 
 // AppError 是应用程序中的自定义错误类型

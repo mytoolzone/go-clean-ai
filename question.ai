@@ -1,12 +1,50 @@
 你是一名golang架构师,请使用参考代码和数据库表定义,使用整洁架构的思想生成对应的golang代码文件:
+
 1. 根据数据库表结构生产对应的实体描述, 加上json和gorm的tag方便使用
-2. 实现 repo 接口定义, repo 层需要定义该实体常用的增删改查方法，可以参考代码示例的风格
+2. 实现 repo 接口定义, repo 层需要定义该实体常用的增删改查方法，可以参考代码示例的风格,至少需要定义一个 Finds参数为 (context.Context, options ...dto.QueryOption)
 3. repo 接口实现，使用 gorm 框架保存数据
 4. usecase 接口定义
 5. usecase 接口实现 ,错误定义使用 AppError 包装
 
 数据库表定义如下:
-
+CREATE TABLE `orders` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `source` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT '小程序' COMMENT '小程序|美团|饿了么|同程|售票口|补票',
+  `pay_method` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '支付宝|现金|微信|云闪付',
+  `com_id` int NOT NULL,
+  `shop_id` int NOT NULL DEFAULT '0',
+  `staff_id` int NOT NULL DEFAULT '0' COMMENT '收款人',
+  `order_no` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `user_id` int NOT NULL,
+  `inviter_id` int DEFAULT NULL COMMENT '邀请人',
+  `seller_id` int NOT NULL DEFAULT '0' COMMENT '导购',
+  `authcode` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `coupons` varchar(2048) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `discount_type` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT 'none',
+  `status` char(8) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT 'unpay' COMMENT '状态 unpay|paid|refund|cancel|timeout（未付款|付款）',
+  `total` decimal(10,2) DEFAULT '0.00' COMMENT '单位元',
+  `real_total` decimal(10,2) NOT NULL COMMENT '单位分',
+  `consumed` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `is_comment` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '0',
+  `address` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '收货地址{}',
+  `express_status` char(8) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT 'unship' COMMENT '快递状态 unship|shipping|signed|comment',
+  `express` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '快递信息{}',
+  `paid_at` timestamp NULL DEFAULT NULL COMMENT '付款时间',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `goodslist` varchar(2048) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT '[]',
+  `express_total` int DEFAULT '0' COMMENT '快递费用',
+  `express_type` char(8) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '如果都为虚拟产品 不需要快递，normal|free|collect|nil',
+  `goods_type` char(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'goods,ticket,room',
+  `transaction_id` varchar(32) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '微信单号',
+  `note` varchar(1024) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `info` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '关键额外信息| 满三件包邮',
+  `address_id` int DEFAULT '0' COMMENT '收货地址',
+  PRIMARY KEY (`id`,`user_id`),
+  UNIQUE KEY `com_order_no_index` (`com_id`,`order_no`),
+  KEY `user_index` (`user_id`),
+  KEY `com_created_at_index` (`com_id`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=37944 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 下面是一个使用 go-clean 思想实现的一个 golang web项目的示例，你写的代码风格要和下面代码风格保持一致:
 >>> Begin Filename=errors.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/app_err/errors.go
@@ -167,7 +205,7 @@ func Fail(c *gin.Context, err error) {
 	return
 }
 ```
-<<< End Filename=resp.go 
+<<< End Filename=resp.go
 >>> Begin Filename=error.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/controller/http/v1/error.go
 ```package v1
 
@@ -183,7 +221,7 @@ func errorResponse(c *gin.Context, code int, msg string) {
 	c.AbortWithStatusJSON(code, response{msg})
 }
 ```
-<<< End Filename=error.go 
+<<< End Filename=error.go
 >>> Begin Filename=router.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/controller/http/v1/router.go
 ```// Package v1 implements routing paths. Each services in own file.
 package v1
@@ -214,7 +252,7 @@ func NewRouter(handler *gin.Engine, u usecase.UserUseCase) {
 	}
 }
 ```
-<<< End Filename=router.go 
+<<< End Filename=router.go
 >>> Begin Filename=user.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/controller/http/v1/user.go
 ```package v1
 
@@ -297,7 +335,7 @@ func (uc *UserController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
 ```
-<<< End Filename=user.go 
+<<< End Filename=user.go
 >>> Begin Filename=common.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/entity/dto/common.go
 ```package dto
 
@@ -312,7 +350,7 @@ type Pagination struct {
 	Page
 }
 ```
-<<< End Filename=common.go 
+<<< End Filename=common.go
 >>> Begin Filename=query.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/entity/dto/query.go
 ```package dto
 
@@ -349,7 +387,7 @@ func QueryWithOpenID(openid string) QueryOption {
 	})
 }
 ```
-<<< End Filename=query.go 
+<<< End Filename=query.go
 >>> Begin Filename=translation.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/entity/translation.go
 ```// Package entity defines main entities for business logic (services), data base mapping and
 // HTTP response objects if suitable. Each logic group entities in own file.
@@ -363,7 +401,7 @@ type Translation struct {
 	Translation string `json:"translation"  example:"text for translation"`
 }
 ```
-<<< End Filename=translation.go 
+<<< End Filename=translation.go
 >>> Begin Filename=user.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/entity/user.go
 ```package entity
 
@@ -400,7 +438,7 @@ type User struct {
 	Status        int       `gorm:"column:status" json:"status"`
 }
 ```
-<<< End Filename=user.go 
+<<< End Filename=user.go
 >>> Begin Filename=interfaces.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/usecase/interfaces.go
 ```// Package usecase implements application business logic. Each logic group in own file.
 package usecase
@@ -448,7 +486,7 @@ type (
 	}
 )
 ```
-<<< End Filename=interfaces.go 
+<<< End Filename=interfaces.go
 >>> Begin Filename=user.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/usecase/repo/user.go
 ```package repo
 
@@ -510,7 +548,7 @@ func (r *UserRepo) Update(ctx context.Context, user *entity.User) error {
 	return r.DB.WithContext(ctx).Save(user).Error
 }
 ```
-<<< End Filename=user.go 
+<<< End Filename=user.go
 >>> Begin Filename=user.go, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/internal/usecase/user.go
 ```package usecase
 
@@ -565,5 +603,5 @@ func (uc *userUseCase) Register(ctx context.Context, user *entity.User) error {
 	return uc.CreateUser(ctx, user)
 }
 ```
-<<< End Filename=user.go 
+<<< End Filename=user.go
 >>> Begin Filename=question.ai, Path=/Users/mac/code/go/src/github.com/mytoolzone/gomall/question.ai

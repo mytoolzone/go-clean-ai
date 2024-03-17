@@ -3,6 +3,8 @@ package app
 
 import (
 	"fmt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,27 +18,21 @@ import (
 	"go-clean/internal/usecase"
 	"go-clean/internal/usecase/repo"
 	"go-clean/pkg/httpserver"
-	"go-clean/pkg/postgres"
 )
 
 // Run creates objects via constructors.
 func Run(cfg *config.Config) {
-
 	// Repository
-	pg, err := postgres.New(cfg.PG.URL, postgres.MaxPoolSize(cfg.PG.PoolMax))
+	db, err := gorm.Open(mysql.Open(cfg.MYSQL.DSN), &gorm.Config{})
 	if err != nil {
-		glog.Fatal(fmt.Errorf("app - Run - postgres.New: %w", err))
+		glog.Fatalf("app - Run - gorm.Open: %w", err)
 	}
-	defer pg.Close()
-
 	// Use case
-	translationUseCase := usecase.New(
-		repo.New(pg),
-	)
+	userUseCase := usecase.NewUserUseCase(repo.NewGormUserRepository(db))
 
 	// HTTP Server
 	handler := gin.New()
-	v1.NewRouter(handler, translationUseCase)
+	v1.NewRouter(handler, userUseCase)
 	httpServer := httpserver.New(handler, httpserver.Port(cfg.HTTP.Port))
 
 	// Waiting signal
@@ -45,8 +41,10 @@ func Run(cfg *config.Config) {
 
 	select {
 	case s := <-interrupt:
+
 		glog.Info("app - Run - signal: " + s.String())
 	case err = <-httpServer.Notify():
+
 		glog.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
 	}
 
